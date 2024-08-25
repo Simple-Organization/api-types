@@ -40,21 +40,15 @@ Para a `api` é necessário que o primeiro argumento de cada rota seja um `Conte
 
 O `Context` é um objeto customizado pelo desenvolvedor, o `Context` será de acordo com a implementação que ele use
 
-Exemplo de `Context` com `Fastify` e `node-postgres`
+Exemplo de `Context` com `Fastify`
 
 ```ts
 // Não é necessário que seja uma classe, isso é só um exemplo usando classe
 export class ApiContext {
-  #database: pg.Client;
   #request: FastifyRequest;
   #reply: FastifyReply;
 
-  constructor(
-    database: pg.Client,
-    request: FastifyRequest,
-    reply: FastifyReply,
-  ) {
-    this.#database = database;
+  constructor(request: FastifyRequest, reply: FastifyReply) {
     this.#request = request;
     this.#reply = reply;
   }
@@ -104,6 +98,51 @@ Nesse exemplo acima `loadDashboard` acessa `getCustumer` chamando como uma subro
 E como usa o mesmo `context`, é possível que no primeiro `context.auth()` nós fazemos cache do `user` no `Context` e possamos reutizar o mesmo usuário para cada `context.auth` que chamarmos
 
 Para esses casos pode ser interessante implementar um `Context` que impeça que as subrotinas acessem coisas como `.setCookie`
+
+### Usando no `Fastify` ou `Express`
+
+Apesar desse exemplo ser para o `Fastify`, ele pode ser facilmente adaptado para outras `api`
+
+Uma vez que temos o objeto `apiRoutes`, nós devemos criar o objeto otimizado para o `Fastify`, criamos com o método `optimizeApiRoutes`
+
+```ts
+const optimized = optimizeApiRoutes(apiRoutes);
+```
+
+E assim no `Fastify` podemos acessar as rotas seguindo o exemplo abaixo
+
+```ts
+app.post('/api/*', async (req, reply) => {
+  const routePath = req.originalUrl.replace('/api/', '');
+
+  const func = optimizedRoutes[routePath];
+
+  if (!func) {
+    return reply.status(404).send({ error: 'Route not found' });
+  }
+
+  const context = new ApiContext(req, reply); // Aqui nós criamos o ApiContext
+
+  try {
+    const result = await func(context, req.body);
+    reply.status(200).send(result);
+  } catch (error: any) {
+    // Exemplo dando suporte ao zod
+    if (error instanceof ZodError) {
+      reply.status(400).send({ error: error.toString() });
+      return;
+    }
+
+    reply.status(500).send({ error: error + '' });
+  }
+});
+```
+
+Nesse exemplo acima, a `api` seria chamada usando `/api/custumer.get`, você pode configurar a chamada para ser `/api/custumer/get` passando um argumento adicional ao `optimizeApiRoutes`
+
+```ts
+const optimized = optimizeApiRoutes(apiRoutes, '/');
+```
 
 ## Configurando no frontend
 

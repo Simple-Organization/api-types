@@ -68,4 +68,23 @@ test.describe('optimizeApiRoutes', () => {
       'user.loginProcess.end': obj.user.loginProcess.end,
     });
   });
+
+  //
+  //
+
+  test('Must work 3, add separator', () => {
+    const obj = {
+      custumer: {
+        get: () => {},
+        update: () => {},
+      },
+    };
+
+    const optimized = optimizeApiRoutes(obj, '/');
+
+    expect(optimized).toEqual({
+      'custumer/get': obj.custumer.get,
+      'custumer/update': obj.custumer.update,
+    });
+  });
 });

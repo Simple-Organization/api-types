@@ -29,16 +29,17 @@ export type OptimizedRoutes<Ctx> = Record<
  */
 export function optimizeApiRoutes<Ctx>(
   source: any,
+  separator = '.',
   parentKey = '',
 ): OptimizedRoutes<Ctx> {
   const result: any = {};
 
   for (const key in source) {
     const value = source[key];
-    const newKey = parentKey ? `${parentKey}.${key}` : key;
+    const newKey = parentKey ? `${parentKey}${separator}${key}` : key;
 
     if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
-      const nestedObject = optimizeApiRoutes(value, newKey);
+      const nestedObject = optimizeApiRoutes(value, separator, newKey);
       Object.assign(result, nestedObject);
     } else {
       result[newKey] = value;

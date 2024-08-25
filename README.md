@@ -1,4 +1,4 @@
-# api-types
+# simorg-api-typify
 
 Prove uma interface entre o `backend` e o `frontend` como o `tRPC` faz
 

@@ -1,8 +1,8 @@
 //
 //
 
-export type RemoveFirstArg<T, Ctx> = T extends (
-  context: Ctx,
+export type RemoveFirstArg<T> = T extends (
+  context: any,
   ...args: infer Rest
 ) => infer R
   ? (...args: Rest) => R extends Promise<any> ? R : Promise<R>
@@ -11,21 +11,21 @@ export type RemoveFirstArg<T, Ctx> = T extends (
 //
 //
 
-export type RemoveFirstArgFromObject<T, Ctx> = {
+export type RemoveFirstArgFromObject<T> = {
   [K in keyof T]: T[K] extends Function
-    ? RemoveFirstArg<T[K], Ctx>
+    ? RemoveFirstArg<T[K]>
     : T[K] extends object
-      ? RemoveFirstArgFromObject<T[K], Ctx>
+      ? RemoveFirstArgFromObject<T[K]>
       : never;
 };
 
 //
 //
 
-export function createApiProxy<T, Ctx>(
+export function createApiProxy<T>(
   callback: (path: string, args: any[]) => any,
   path = '',
-): RemoveFirstArgFromObject<T, Ctx> {
+): RemoveFirstArgFromObject<T> {
   return new Proxy(() => {}, {
     get(_, prop: string) {
       return createApiProxy(callback, path ? `${path}.${prop}` : prop);

@@ -150,7 +150,7 @@ Usamos o `createApiProxy` no `frontend` e precisamos acessar a tipagem do `apiRo
 
 ```ts
 const api = createApiProxy<typeof apiRoutes>((path, args) => {
-  return fetch(path, {
+  return fetch('/api/' + path, {
     method: 'POST',
     body: args[0] ? JSON.stringify(args[0]) : undefined,
   }) //
@@ -185,4 +185,24 @@ Agora podemos acessar seguindo o exemplo abaixo
 
 ```ts
 const custumer = await apiWithSignal(signal).custumer.get(1);
+```
+
+## HTTP Errors
+
+## HTTP Errors
+
+Starting from version `1.0.0-next.2`, the `simorg-api-typify` package introduces a set of HTTP error classes that can be used to handle and respond to different types of HTTP errors in a consistent and standardized way.
+
+To use the HTTP error classes, simply import the desired error class from the `http-errors` module and throw it whenever an error occurs. For example:
+
+```ts
+import { BadRequestError } from 'simorg-api-typify/http-errors';
+
+export function getCustumer(context: Context, body: { id: number }) {
+  if (typeof body.id !== 'number') {
+    throw new BadRequestError('body.id must be a number');
+  }
+
+  // ...
+}
 ```

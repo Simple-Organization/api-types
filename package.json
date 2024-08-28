@@ -27,8 +27,20 @@
   },
   "files": [
     "dist/index.d.ts",
-    "dist/index.js"
+    "dist/index.js",
+    "http-errors/index.d.ts",
+    "http-errors/index.js"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./http-errors": {
+      "types": "./http-errors/index.d.ts",
+      "default": "./http-errors/index.js"
+    }
+  },
   "types": "dist/index.d.ts",
   "type": "module",
   "packageManager": "pnpm@9.6.0"

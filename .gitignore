@@ -3,3 +3,4 @@ dist
 *.tgz
 
 tests/results
+http-errors/*
